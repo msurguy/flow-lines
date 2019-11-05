@@ -12,6 +12,7 @@
           <slider :min="0.001" :max="0.1" :step=0.001 label="dTest" v-model.number="appState.dTest"></slider>
           <slider :min="0.001" :max="1" :step=0.001 label="Separation Distance" v-model.number="appState.separationDistance"></slider>
           <slider :min="0.02" :max="1" :step=0.001 label="Time Step" v-model.number="appState.timeStep"></slider>
+          <slider :min="0.05" :max="1" :step=0.05 label="Simplification" v-model.number="appState.simplification"></slider>
 
           <color-picker v-model="colors" :disable-alpha="true" @colorChange="setColor"></color-picker>
         </div>
@@ -29,6 +30,8 @@
       <div class="sketch">
         <div id="drawing"></div>
       </div>
+      <p id="xFunctionText" class="mt-2 mb-0 small text-black-50">x: {{ this.appState.xFunction }}</p>
+      <p id="yFunctionText" class="small text-black-50">y: {{ this.appState.yFunction }}</p>
     </div>
     <div class="footer-wrapper">
         <div class="footer">
@@ -39,15 +42,17 @@
 </template>
 
 <script>
-  import {appState, qs, defaults} from './appState'
+import {appState, qs, defaults} from './appState'
 import {simplify} from './lib/simplify-path'
-import {generateXFunction, generateYFunction} from './lib/function-generator'
+import {generateFunction} from './lib/function-generator'
 import streamlines from '@anvaka/streamlines'
 import * as SVG from 'svg.js'
 import {generateDownload} from './lib/svgDownload'
 import ColorPicker from './components/ColorPicker/ColorPicker'
 import TextInput from './components/TextInput'
 import Slider from './components/Slider'
+
+const math = require('./lib/math').default
 
 // What function to produce streamlines for
 let vectorField
@@ -63,6 +68,7 @@ export default {
   },
   data () {
     return {
+      seed: 5,
       colors: {
         hex: appState.color
       },
@@ -86,13 +92,7 @@ export default {
       y: this.config.boundingBox.top + Math.random() * this.config.boundingBox.height
     }
 
-    let func = `function vectorField(p) {
-        return {
-          x: ${this.appState.xFunction},
-          y: ${this.appState.yFunction}
-        };
-      }`
-    vectorField = this.compileVectorFieldFunction(func)
+    math.config({randomSeed: this.seed})
     this.generateStreamlines()
   },
   methods: {
@@ -110,29 +110,27 @@ export default {
     download () {
       generateDownload(SVGCanvas.node)
     },
-    compileVectorFieldFunction (code) {
-      try {
-        // eslint-disable-next-line no-new-func
-        let creator = new Function(code + '\nreturn vectorField;')
-        let vectorField = creator()
-        vectorField(this.seedPoint)
-        return vectorField
-      } catch (e) {
-        alert(e.message)
-        return null
-      }
-    },
     generateStreamlines () {
       SVGCanvas.clear()
+
+      // put the currently used formulas into the SVG doc for future reference
+      const description = document.createElement('title')
+      description.innerHTML = `x: ${this.appState.xFunction} | y: ${this.appState.yFunction} | generated with FlowLines`
+      SVGCanvas.node.appendChild(description)
+
       const svgGroup = SVGCanvas.group()
       const config = this.config
       const paper = this.paper
       const color = this.color
       const simplification = this.appState.simplification
-      const separationDistance = this.appState.separationDistance
-      const dTest = this.appState.dTest
-      const timeStep = this.appState.timeStep
       if (streamlinesProcess) streamlinesProcess.dispose()
+
+      vectorField = p => {
+        return {
+          x: math.eval(this.appState.xFunction, { x: p.x, y: p.y }),
+          y: math.eval(this.appState.yFunction, { x: p.x, y: p.y })
+        }
+      }
 
       streamlinesProcess = streamlines({
         vectorField,
@@ -141,7 +139,7 @@ export default {
           for (let i = 0; i < points.length; i++) {
             let tx = (points[i].x - config.boundingBox.left) / config.boundingBox.width
             let ty = (points[i].y - config.boundingBox.top) / config.boundingBox.height
-            transformedPoints.push([Math.round(tx * paper.width * 10) / 10, Math.round(((1 - ty) * paper.height) * 10) / 10])
+            transformedPoints.push([Math.round(tx * paper.width * 100) / 100, Math.round(((1 - ty) * paper.height) * 100) / 100])
           }
           let simplifiedPath = simplify(transformedPoints, simplification)
           svgGroup.polyline(simplifiedPath).fill('none').stroke({width: 1, color: color})
@@ -149,37 +147,27 @@ export default {
         seed: this.seedPoint,
         boundingBox: config.boundingBox,
         // Separation distance between new streamlines.
-        dSep: separationDistance,
+        dSep: this.appState.separationDistance,
         // Distance between streamlines when integration should stop.
-        dTest: dTest,
-        timeStep: timeStep
+        dTest: this.appState.dTest,
+        timeStep: this.appState.timeStep
       })
       streamlinesProcess.run()
     },
     regenerateStreamlines () {
-      let xFunc = generateXFunction()
-      let yFunc = generateYFunction()
-
-      this.appState.xFunction = xFunc
-      this.appState.yFunction = yFunc
-
-      let func = `function vectorField(p) {
-        return {
-          x: ${xFunc},
-          y: ${yFunc}
-        };
-      }`
-      vectorField = this.compileVectorFieldFunction(func)
-      streamlinesProcess.dispose()
+      this.appState.xFunction = generateFunction()
+      this.appState.yFunction = generateFunction()
       this.generateStreamlines()
     }
   },
   watch: {
     'appState.xFunction' (value) {
       qs.set({xf: value})
+      this.generateStreamlines()
     },
     'appState.yFunction' (value) {
       qs.set({yf: value})
+      this.generateStreamlines()
     },
     'appState.seed.value' (value) {
       qs.set({seed: value})
@@ -190,6 +178,10 @@ export default {
     },
     'appState.separationDistance' (value) {
       qs.set({sd: value})
+      this.generateStreamlines()
+    },
+    'appState.simplification' (value) {
+      qs.set({sm: value})
       this.generateStreamlines()
     },
     'appState.timeStep' (value) {

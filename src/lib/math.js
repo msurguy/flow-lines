@@ -4,12 +4,7 @@ const core = require('mathjs/core')
 // Create a new, empty math.js instance
 // It will only contain methods `import` and `config`
 const math = core.create()
-
-math.import(require('mathjs/lib/expression/function/parse'))
-math.import(require('mathjs/lib/expression/function/compile'))
 math.import(require('mathjs/lib/expression/function/eval'))
-
-math.import(require('mathjs/lib/function/string/format'))
 
 // create simple functions for all operators
 math.import({

@@ -73,14 +73,14 @@ class ConstantFunction extends BaseFunctionNode {
 }
 
 const fList = [
-  new ConstantFunction('p.x', 'POINT'),
-  new ConstantFunction('p.y', 'POINT'),
+  new ConstantFunction('x', 'POINT'),
+  new ConstantFunction('y', 'POINT'),
 
-  new ConstantFunction('Math.sqrt(p.x*p.x + p.y * p.y)', 'LENGTH'),
+  new ConstantFunction('sqrt(x*x + y*y)', 'LENGTH'),
 
-  new SingleArgumentFunction(a => `Math.sin(${a})`, 'TRIGONOMETRY'),
-  new SingleArgumentFunction(a => `Math.cos(${a})`, 'TRIGONOMETRY'),
-  // new SingleArgumentFunction(a => `Math.sqrt(${a})`, cfProb * 0.8),
+  new SingleArgumentFunction(a => `sin(${a})`, 'TRIGONOMETRY'),
+  new SingleArgumentFunction(a => `cos(${a})`, 'TRIGONOMETRY'),
+  // new SingleArgumentFunction(a => `sqrt(${a})`, cfProb * 0.1),
   // new SingleArgumentFunction(a => `inversesqrt(${a})`, cfProb * 0.8),
 
   new DualArgumentFunction((a, b) => `${a}*${b}`, 'ARITHMETICS'),
@@ -90,19 +90,19 @@ const fList = [
 
   new DualArgumentFunction((a, b) => {
     if (a === b) return a
-    return `Math.min(${a},${b})`
+    return `min(${a},${b})`
   }, 'MINMAX'),
   new DualArgumentFunction((a, b) => {
     if (a === b) return a
-    return `Math.max(${a},${b})`
+    return `max(${a},${b})`
   }, 'MINMAX'),
 
-  new SingleArgumentFunction(a => `Math.log(Math.abs(${a}))`, 'EXP'),
-  new SingleArgumentFunction(a => `Math.exp(${a})`, 'EXP'),
-  new DualArgumentFunction((a, b) => `Math.pow(${a}, ${b})`, 'EXP'),
+  new SingleArgumentFunction(a => `log(abs(${a}))`, 'EXP'),
+  new SingleArgumentFunction(a => `exp(${a})`, 'EXP'),
+  new DualArgumentFunction((a, b) => `pow(${a}, ${b})`, 'EXP'),
 
-  new SingleArgumentFunction(a => `Math.abs(${a})`, 'SIGN'),
-  new SingleArgumentFunction(a => `Math.sign(${a})`, 'SIGN')
+  new SingleArgumentFunction(a => `abs(${a})`, 'SIGN'),
+  new SingleArgumentFunction(a => `sign(${a})`, 'SIGN')
 
   // new ConstantFunction('1.', cfProb * 0.001),
 ]
@@ -131,23 +131,6 @@ function generateArguments () {
 }
 
 export const generateFunction = () => {
-  normalizeProbabilities()
-  const vX = generateArguments()
-  const vY = generateArguments()
-  return `function vectorField(p) {
-  return {
-    x: ${vX},
-    y: ${vY}
-  };
-}`
-}
-
-export const generateXFunction = () => {
-  normalizeProbabilities()
-  return generateArguments()
-}
-
-export const generateYFunction = () => {
   normalizeProbabilities()
   return generateArguments()
 }
