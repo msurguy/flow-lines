@@ -18,3 +18,20 @@
   overflow: hidden;
   @include transition($transition-collapse);
 }
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 250ms ease-in-out;
+}
+.slide-enter-to,
+.slide-leave {
+  max-height: 400px;
+  opacity: 1;
+  overflow: hidden;
+}
+.slide-enter,
+.slide-leave-to {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}

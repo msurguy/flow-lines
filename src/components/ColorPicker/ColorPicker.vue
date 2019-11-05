@@ -1,84 +1,78 @@
 <template>
-  <div class="color-picker-wrapper">
-    <div class="sidebar-control">
-      <div class="control-header">
-        <label :for="labelId" class="control-label color-control-label" :id="labelId">Stroke</label>
-        <div class="color-indicator-wrapper">
-          <popper
-            trigger="click"
-            :options="{ placement: 'top', modifiers: { offset: { offset: '-10px,0px' } } }">
-            <div class="popper popper-content">
-              <div role="application" aria-label="Color picker"
-                   :class="['vc-sketch', disableAlpha ? 'vc-sketch__disable-alpha' : '']">
-                <div class="vc-sketch-saturation-wrap">
-                  <saturation v-model="colors" @change="childChange"></saturation>
-                </div>
-                <div class="vc-sketch-controls">
-                  <div class="vc-sketch-sliders">
-                    <div class="vc-sketch-hue-wrap">
-                      <hue v-model="colors" @change="childChange"></hue>
-                    </div>
-                    <div class="vc-sketch-alpha-wrap" v-if="!disableAlpha">
-                      <alpha v-model="colors" @change="childChange"></alpha>
-                    </div>
-                  </div>
-                  <div class="vc-sketch-color-wrap">
-                    <div :aria-label="`Current color is ${activeColor}`" class="vc-sketch-active-color"
-                         :style="{background: activeColor}"></div>
-                    <checkboard></checkboard>
-                  </div>
-                </div>
-                <div class="vc-sketch-field" v-if="!disableFields">
-                  <!-- rgba -->
-                  <div class="vc-sketch-field--double">
-                    <ed-in label="hex" :value="hex" @change="inputChange"></ed-in>
-                  </div>
-                  <div class="vc-sketch-field--single">
-                    <ed-in label="r" :value="colors.rgba.r" @change="inputChange"></ed-in>
-                  </div>
-                  <div class="vc-sketch-field--single">
-                    <ed-in label="g" :value="colors.rgba.g" @change="inputChange"></ed-in>
-                  </div>
-                  <div class="vc-sketch-field--single">
-                    <ed-in label="b" :value="colors.rgba.b" @change="inputChange"></ed-in>
-                  </div>
-                  <div class="vc-sketch-field--single" v-if="!disableAlpha">
-                    <ed-in label="a" :value="colors.a" :arrow-offset="0.01" :max="1" @change="inputChange"></ed-in>
-                  </div>
-                </div>
-                <div class="vc-sketch-presets" role="group"
-                     aria-label="A color preset, pick one to set as current color">
-                  <template v-for="c in presetColors">
-                    <div
-                      v-if="!isTransparent(c)"
-                      class="vc-sketch-presets-color"
-                      :aria-label="'Color:' + c"
-                      :key="c"
-                      :style="{background: c}"
-                      @click="handlePreset(c)">
-                    </div>
-                    <div
-                      v-else
-                      :key="c"
-                      :aria-label="'Color:' + c"
-                      class="vc-sketch-presets-color"
-                      @click="handlePreset(c)">
-                      <checkboard/>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </div>
-            <div slot="reference" class="color-indicator" :style="{ 'background-color': `#${hex}` }"></div>
-          </popper>
-
-          <input :aria-labelledby="labelId"
-                 class="control-text-input color-control-text-input" type="text" :value="hex"
-                 @change="basicInputChange">
-          <button class="btn btn-xsm btn-outline-secondary color-picker-button" @click.prevent="emitChange">SET</button>
-        </div>
+  <div class="sidebar-control">
+    <div class="control-header">
+      <label :for="labelId" class="control-label color-control-label" :id="labelId">Stroke</label>
+      <div class="color-indicator-wrapper">
+        <div class="color-indicator" :style="{ 'background-color': `#${hex}` }" @click="toggleColorPicker"></div>
+        <input :aria-labelledby="labelId"
+               class="control-text-input color-control-text-input" type="text" :value="hex"
+               @change="basicInputChange">
+        <button class="btn btn-xsm btn-outline-secondary color-picker-button" @click.prevent="emitChange">SET</button>
       </div>
     </div>
+    <transition name="slide">
+      <div v-if="showColorPicker" role="application" aria-label="Color picker"
+           class="mt-2"
+           :class="['vc-sketch', disableAlpha ? 'vc-sketch__disable-alpha' : '']">
+        <div class="vc-sketch-saturation-wrap">
+          <saturation v-model="colors" @change="childChange"></saturation>
+        </div>
+        <div class="vc-sketch-controls">
+          <div class="vc-sketch-sliders">
+            <div class="vc-sketch-hue-wrap">
+              <hue v-model="colors" @change="childChange"></hue>
+            </div>
+            <div class="vc-sketch-alpha-wrap" v-if="!disableAlpha">
+              <alpha v-model="colors" @change="childChange"></alpha>
+            </div>
+          </div>
+          <div class="vc-sketch-color-wrap">
+            <div :aria-label="`Current color is ${activeColor}`" class="vc-sketch-active-color"
+                 :style="{background: activeColor}"></div>
+            <checkboard></checkboard>
+          </div>
+        </div>
+        <div class="vc-sketch-field" v-if="!disableFields">
+          <!-- rgba -->
+          <div class="vc-sketch-field--double">
+            <ed-in label="hex" :value="hex" @change="inputChange"></ed-in>
+          </div>
+          <div class="vc-sketch-field--single">
+            <ed-in label="r" :value="colors.rgba.r" @change="inputChange"></ed-in>
+          </div>
+          <div class="vc-sketch-field--single">
+            <ed-in label="g" :value="colors.rgba.g" @change="inputChange"></ed-in>
+          </div>
+          <div class="vc-sketch-field--single">
+            <ed-in label="b" :value="colors.rgba.b" @change="inputChange"></ed-in>
+          </div>
+          <div class="vc-sketch-field--single" v-if="!disableAlpha">
+            <ed-in label="a" :value="colors.a" :arrow-offset="0.01" :max="1" @change="inputChange"></ed-in>
+          </div>
+        </div>
+        <div class="vc-sketch-presets" role="group"
+             aria-label="A color preset, pick one to set as current color">
+          <template v-for="c in presetColors">
+            <div
+              v-if="!isTransparent(c)"
+              class="vc-sketch-presets-color"
+              :aria-label="'Color:' + c"
+              :key="c"
+              :style="{background: c}"
+              @click="handlePreset(c)">
+            </div>
+            <div
+              v-else
+              :key="c"
+              :aria-label="'Color:' + c"
+              class="vc-sketch-presets-color"
+              @click="handlePreset(c)">
+              <checkboard/>
+            </div>
+          </template>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -89,8 +83,6 @@ import saturation from './Saturation.vue'
 import hue from './Hue.vue'
 import alpha from './Alpha.vue'
 import checkboard from './Checkboard.vue'
-import Popper from 'vue-popperjs'
-import 'vue-popperjs/dist/vue-popper.css'
 
 const presetColors = [
   '#D0021B', '#F5A623', '#F8E71C', '#8B572A', '#7ED321',
@@ -102,13 +94,17 @@ const presetColors = [
 export default {
   name: 'ColorPicker',
   mixins: [colorMixin],
+  data () {
+    return {
+      showColorPicker: false
+    }
+  },
   components: {
     saturation,
     hue,
     alpha,
     'ed-in': editableInput,
-    checkboard,
-    popper: Popper
+    checkboard
   },
   props: {
     presetColors: {
@@ -145,8 +141,12 @@ export default {
     }
   },
   methods: {
+    toggleColorPicker () {
+      this.showColorPicker = !this.showColorPicker
+    },
     emitChange (e) {
       this.$emit('colorChange', `#${this.hex}`)
+      this.showColorPicker = false
     },
     handlePreset (c) {
       this.colorChange({
@@ -162,6 +162,7 @@ export default {
         hex: e.target.value,
         source: 'hex'
       })
+      this.$emit('colorChange', `#${this.hex}`)
     },
     inputChange (data) {
       if (!data) {
@@ -187,10 +188,6 @@ export default {
 </script>
 
 <style scoped>
-  .popper-content {
-    width: 280px;
-  }
-
   .vc-sketch {
     width: 100%;
     display: block;
@@ -310,9 +307,12 @@ export default {
     width: 20px;
     height: 20px;
     background-color: red;
+    display: block;
+    position: relative;
   }
 
   .color-indicator-wrapper {
+    position: relative;
     display: flex;
   }
 
