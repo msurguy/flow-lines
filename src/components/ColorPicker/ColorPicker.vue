@@ -1,7 +1,7 @@
 <template>
   <div class="sidebar-control">
     <div class="control-header">
-      <label :for="labelId" class="control-label color-control-label" :id="labelId">Stroke</label>
+      <label :for="labelId" class="control-label color-control-label" :id="labelId">{{ label }}</label>
       <div class="color-indicator-wrapper">
         <div class="color-indicator" :style="{ 'background-color': `#${hex}` }" @click="toggleColorPicker"></div>
         <input :aria-labelledby="labelId"
@@ -120,6 +120,10 @@ export default {
     disableFields: {
       type: Boolean,
       default: false
+    },
+    label: {
+      type: String,
+      default: ''
     }
   },
   computed: {

@@ -4,7 +4,7 @@
     <div class="sidebar">
       <div class="controls-wrapper">
         <div class="controls">
-          <button class="btn btn-secondary btn-block" @click="regenerateStreamlines">Regenerate</button>
+          <button class="btn btn-secondary btn-block" @click="regenerateStreamlines">Shuffle</button>
           <text-input label="X Formula" @reset="resetxFunction"
                       v-model="appState.xFunction"></text-input>
           <text-input label="Y Formula" @reset="resetyFunction"
@@ -14,7 +14,9 @@
           <slider :min="0.02" :max="1" :step=0.001 label="Time Step" v-model.number="appState.timeStep"></slider>
           <slider :min="0.05" :max="1" :step=0.05 label="Simplification" v-model.number="appState.simplification"></slider>
 
-          <color-picker v-model="colors" :disable-alpha="true" @colorChange="setColor"></color-picker>
+          <color-picker :disable-alpha="true" @colorChange="setColor" label="Stroke" v-model="strokeColor"></color-picker>
+          <color-picker :disable-alpha="true" @colorChange="setBackgroundColor" label="Background" v-model="bgColor"></color-picker>
+          <slider :min="1" :max="10000" label="Seed" v-model.number="appState.seed"></slider>
         </div>
       </div>
       <div class="button">
@@ -53,11 +55,14 @@ import TextInput from './components/TextInput'
 import Slider from './components/Slider'
 
 const math = require('./lib/math').default
+const Randoma = require('randoma')
 
 // What function to produce streamlines for
 let vectorField
 let streamlinesProcess = null
 let SVGCanvas
+let bgElement
+let SVGGroup
 
 export default {
   name: 'App',
@@ -68,38 +73,40 @@ export default {
   },
   data () {
     return {
-      seed: 5,
-      colors: {
+      strokeColor: {
         hex: appState.color
+      },
+      bgColor: {
+        hex: appState.bg
       },
       appState,
       paper: {
         width: 600, // width and height of SVG canvas
         height: 600
       },
-      color: appState.color,
       config: {
         boundingBox:
           {left: -5, top: -5, width: 10, height: 10} // This is the "zoom" level of the rendering
-      },
-      seedPoint: {}
+      }
     }
   },
   mounted () {
     SVGCanvas = SVG('drawing').size(this.paper.width, this.paper.height)
-    this.seedPoint = {
-      x: this.config.boundingBox.left + Math.random() * this.config.boundingBox.width,
-      y: this.config.boundingBox.top + Math.random() * this.config.boundingBox.height
-    }
-
-    math.config({randomSeed: this.seed})
+    math.config({randomSeed: this.appState.seed})
     this.generateStreamlines()
   },
   methods: {
     setColor (value) {
-      this.color = value
       SVGCanvas.select('polyline').stroke(value)
       this.appState.color = value
+    },
+    setBackgroundColor (value) {
+      this.appState.bg = value
+      if (this.appState.bg) {
+        bgElement = SVGCanvas.rect(this.paper.width, this.paper.height).fill(value)
+        bgElement.after(SVGGroup)
+      }
+      if (bgElement) bgElement.fill(value)
     },
     resetxFunction () {
       this.appState.xFunction = defaults.xFunction
@@ -115,15 +122,24 @@ export default {
 
       // put the currently used formulas into the SVG doc for future reference
       const description = document.createElement('title')
-      description.innerHTML = `x: ${this.appState.xFunction} | y: ${this.appState.yFunction} | generated with FlowLines`
+      description.innerHTML = `x=${this.appState.xFunction}|y=${this.appState.yFunction}|dTest=${this.appState.dTest}|sd=${this.appState.separationDistance}|sm=${this.appState.simplification}|ts=${this.appState.timeStep} | generated with FlowLines`
       SVGCanvas.node.appendChild(description)
 
-      const svgGroup = SVGCanvas.group()
+      if (this.appState.bg) bgElement = SVGCanvas.rect(this.paper.width, this.paper.height).fill(this.appState.bg)
+
+      SVGGroup = SVGCanvas.group()
       const config = this.config
       const paper = this.paper
-      const color = this.color
+      const color = this.appState.color
       const simplification = this.appState.simplification
       if (streamlinesProcess) streamlinesProcess.dispose()
+
+      const random = new Randoma({seed: this.appState.seed})
+
+      const seedPoint = {
+        x: this.config.boundingBox.left + random.float() * this.config.boundingBox.width,
+        y: this.config.boundingBox.top + random.float() * this.config.boundingBox.height
+      }
 
       vectorField = p => {
         return {
@@ -142,9 +158,9 @@ export default {
             transformedPoints.push([Math.round(tx * paper.width * 100) / 100, Math.round(((1 - ty) * paper.height) * 100) / 100])
           }
           let simplifiedPath = simplify(transformedPoints, simplification)
-          svgGroup.polyline(simplifiedPath).fill('none').stroke({width: 1, color: color})
+          SVGGroup.polyline(simplifiedPath).fill('none').stroke({width: 1, color: color})
         },
-        seed: this.seedPoint,
+        seed: seedPoint,
         boundingBox: config.boundingBox,
         // Separation distance between new streamlines.
         dSep: this.appState.separationDistance,
@@ -169,7 +185,7 @@ export default {
       qs.set({yf: value})
       this.generateStreamlines()
     },
-    'appState.seed.value' (value) {
+    'appState.seed' (value) {
       qs.set({seed: value})
     },
     'appState.dTest' (value) {
@@ -190,6 +206,9 @@ export default {
     },
     'appState.color' (value) {
       qs.set({color: value})
+    },
+    'appState.bg' (value) {
+      qs.set({bg: value})
     }
   }
 }
@@ -267,7 +286,7 @@ export default {
 
   @media (max-width: 767px) {
     .page {
-      flex-direction: column;
+      flex-direction: column-reverse;
     }
 
     .controls-wrapper {
