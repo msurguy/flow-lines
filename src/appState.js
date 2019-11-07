@@ -12,7 +12,8 @@ export const defaults = {
   simplification: 0.2,
   color: '#000000',
   bg: null,
-  timeStep: 0.05
+  timeStep: 0.05,
+  strokeWidth: 1
 }
 
 export const appState = {
@@ -24,5 +25,6 @@ export const appState = {
   separationDistance: currentStateFromQuery.sd || defaults.separationDistance, // Separation distance between new streamlines.
   simplification: currentStateFromQuery.sm || defaults.simplification, // line simplification amount (0.1-2)
   timeStep: currentStateFromQuery.ts || defaults.timeStep,
-  bg: currentStateFromQuery.bg || defaults.bg
+  bg: currentStateFromQuery.bg || defaults.bg,
+  strokeWidth: currentStateFromQuery.sw || defaults.strokeWidth
 }

@@ -4,16 +4,26 @@
     <div class="sidebar">
       <div class="controls-wrapper">
         <div class="controls">
-          <button class="btn btn-secondary btn-block" @click="regenerateStreamlines">Shuffle</button>
-          <text-input label="X Formula" @reset="resetxFunction"
+          <div class="btn-group  d-flex" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-primary" :disabled="history.index === 0" @click="backInHistory"><svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M10 6 L2 16 10 26 M2 16 L30 16"></path>
+            </svg></button>
+            <button type="button" class="btn btn-primary" :disabled="history.items.length === 0 || (history.index === history.items.length - 1)" @click="forwardInHistory"><svg viewBox="0 0 32 32"  width="24" height="24" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M22 6 L30 16 22 26 M30 16 L2 16"></path>
+            </svg></button>
+            <button type="button" class="btn btn-primary" @click="regenerateStreamlines">Randomize</button>
+          </div>
+          <text-input label="X Formula"
+                      :tooltip="formulaHelpText"
                       v-model="appState.xFunction"></text-input>
-          <text-input label="Y Formula" @reset="resetyFunction"
+          <text-input label="Y Formula"
+                      :tooltip="formulaHelpText"
                       v-model="appState.yFunction"></text-input>
-          <slider :min="0.001" :max="0.1" :step=0.001 label="dTest" v-model.number="appState.dTest"></slider>
-          <slider :min="0.001" :max="1" :step=0.001 label="Separation Distance" v-model.number="appState.separationDistance"></slider>
-          <slider :min="0.02" :max="1" :step=0.001 label="Time Step" v-model.number="appState.timeStep"></slider>
-          <slider :min="0.05" :max="1" :step=0.05 label="Simplification" v-model.number="appState.simplification"></slider>
-
+          <slider :min="0.001" :max="0.2" :step="0.001" label="dTest" v-model.number="appState.dTest"></slider>
+          <slider :min="0.001" :max="1" :step="0.001" label="Separation Distance" v-model.number="appState.separationDistance"></slider>
+          <slider :min="0.02" :max="1" :step="0.001" label="Time Step" v-model.number="appState.timeStep"></slider>
+          <slider :min="0.05" :max="1" :step="0.05" label="Simplification" v-model.number="appState.simplification"></slider>
+          <slider :min="1" :max="5" :step="1" label="Stroke Width" v-model.number="appState.strokeWidth"></slider>
           <color-picker :disable-alpha="true" @colorChange="setColor" label="Stroke" v-model="strokeColor"></color-picker>
           <color-picker :disable-alpha="true" @colorChange="setBackgroundColor" label="Background" v-model="bgColor"></color-picker>
           <slider :min="1" :max="10000" label="Seed" v-model.number="appState.seed"></slider>
@@ -44,7 +54,7 @@
 </template>
 
 <script>
-import {appState, qs, defaults} from './appState'
+import {appState, qs} from './appState'
 import {simplify} from './lib/simplify-path'
 import {generateFunction} from './lib/function-generator'
 import streamlines from '@anvaka/streamlines'
@@ -53,6 +63,7 @@ import {generateDownload} from './lib/svgDownload'
 import ColorPicker from './components/ColorPicker/ColorPicker'
 import TextInput from './components/TextInput'
 import Slider from './components/Slider'
+import {formulaHelpText} from './help/text'
 
 const math = require('./lib/math').default
 const Randoma = require('randoma')
@@ -87,6 +98,11 @@ export default {
       config: {
         boundingBox:
           {left: -5, top: -5, width: 10, height: 10} // This is the "zoom" level of the rendering
+      },
+      formulaHelpText,
+      history: {
+        index: 0,
+        items: []
       }
     }
   },
@@ -96,6 +112,24 @@ export default {
     this.generateStreamlines()
   },
   methods: {
+    addToHistory () {
+      this.history.items.push({x: this.appState.xFunction, y: this.appState.yFunction})
+      this.history.index = this.history.items.length - 1
+    },
+    backInHistory () {
+      if (this.history.index > 0) {
+        this.history.index--
+        this.appState.xFunction = this.history.items[this.history.index].x
+        this.appState.yFunction = this.history.items[this.history.index].y
+      }
+    },
+    forwardInHistory () {
+      if (this.history.index < this.history.items.length) {
+        this.history.index++
+        this.appState.xFunction = this.history.items[this.history.index].x
+        this.appState.yFunction = this.history.items[this.history.index].y
+      }
+    },
     setColor (value) {
       SVGCanvas.select('polyline').stroke(value)
       this.appState.color = value
@@ -107,12 +141,6 @@ export default {
         bgElement.after(SVGGroup)
       }
       if (bgElement) bgElement.fill(value)
-    },
-    resetxFunction () {
-      this.appState.xFunction = defaults.xFunction
-    },
-    resetyFunction () {
-      this.appState.yFunction = defaults.yFunction
     },
     download () {
       generateDownload(SVGCanvas.node)
@@ -131,6 +159,7 @@ export default {
       const config = this.config
       const paper = this.paper
       const color = this.appState.color
+      const strokeWidth = this.appState.strokeWidth
       const simplification = this.appState.simplification
       if (streamlinesProcess) streamlinesProcess.dispose()
 
@@ -158,7 +187,7 @@ export default {
             transformedPoints.push([Math.round(tx * paper.width * 100) / 100, Math.round(((1 - ty) * paper.height) * 100) / 100])
           }
           let simplifiedPath = simplify(transformedPoints, simplification)
-          SVGGroup.polyline(simplifiedPath).fill('none').stroke({width: 1, color: color})
+          SVGGroup.polyline(simplifiedPath).fill('none').stroke({width: strokeWidth, color: color})
         },
         seed: seedPoint,
         boundingBox: config.boundingBox,
@@ -174,6 +203,7 @@ export default {
       this.appState.xFunction = generateFunction()
       this.appState.yFunction = generateFunction()
       this.generateStreamlines()
+      this.addToHistory()
     }
   },
   watch: {
@@ -206,6 +236,10 @@ export default {
     },
     'appState.color' (value) {
       qs.set({color: value})
+    },
+    'appState.strokeWidth' (value) {
+      qs.set({sw: value})
+      SVGCanvas.select('polyline').stroke({ width: value })
     },
     'appState.bg' (value) {
       qs.set({bg: value})
