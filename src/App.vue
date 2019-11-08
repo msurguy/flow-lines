@@ -5,13 +5,13 @@
       <div class="controls-wrapper">
         <div class="controls">
           <div class="btn-group  d-flex" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-primary" :disabled="history.index === 0" @click="backInHistory"><svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <button type="button" class="btn btn-sm btn-primary" :disabled="history.index === 0" @click="backInHistory"><svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
               <path d="M10 6 L2 16 10 26 M2 16 L30 16"></path>
             </svg></button>
-            <button type="button" class="btn btn-primary" :disabled="history.items.length === 0 || (history.index === history.items.length - 1)" @click="forwardInHistory"><svg viewBox="0 0 32 32"  width="24" height="24" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <button type="button" class="btn btn-sm btn-primary" :disabled="history.items.length <= 1 || (history.index === history.items.length - 1)" @click="forwardInHistory"><svg viewBox="0 0 32 32"  width="24" height="24" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
               <path d="M22 6 L30 16 22 26 M30 16 L2 16"></path>
             </svg></button>
-            <button type="button" class="btn btn-primary" @click="regenerateStreamlines">Randomize</button>
+            <button type="button" class="btn btn-sm btn-primary" @click="regenerateStreamlines">Randomize</button>
           </div>
           <text-input label="X Formula"
                       :tooltip="formulaHelpText"
@@ -102,7 +102,12 @@ export default {
       formulaHelpText,
       history: {
         index: 0,
-        items: []
+        items: [
+          {
+            x: appState.xFunction,
+            y: appState.yFunction
+          }
+        ]
       }
     }
   },
