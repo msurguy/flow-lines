@@ -35,3 +35,10 @@
   opacity: 0;
   overflow: hidden;
 }
+
+.favorites-enter-active, .favorites-leave-active  {
+  transition: transform 0.3s ease;
+}
+.favorites-enter, .favorites-leave-to {
+  transform: translateX(-120px); // width of the thumbnail panel
+}

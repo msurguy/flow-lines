@@ -40,11 +40,37 @@
           <button class="btn btn-xsm ml-3 mr-1"><svg viewBox="0 0 32 32" width="22" height="22" fill="#af2430" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
             <path d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z"></path>
           </svg></button>
-          <button class="btn btn-xsm ml-1 mr-3"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+          <button @click="favorites.opened = !favorites.opened" class="btn btn-xsm ml-1 mr-3"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
             <path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24"></path>
           </svg></button>
         </div>
       </div>
+      <transition name="favorites">
+        <div v-if="favorites.opened" class="favorites-wrapper">
+          <ul>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+            <li>Some here</li>
+          </ul>
+        </div>
+      </transition>
     </div>
 
     <!-- Page Content -->
@@ -118,6 +144,10 @@ export default {
             y: appState.yFunction
           }
         ]
+      },
+      favorites: {
+        opened: false,
+        items: []
       }
     }
   },
@@ -212,7 +242,10 @@ export default {
         dTest: this.appState.dTest,
         timeStep: this.appState.timeStep
       })
-      streamlinesProcess.run()
+      streamlinesProcess.run().then(() => {
+        // Convert the SVG to small thumbnail that can be stored in local storage
+        // keep thumbnail in memory until the user decides if they want to favorite the current setup or not
+      })
     },
     regenerateStreamlines () {
       this.appState.xFunction = generateFunction()
@@ -271,10 +304,22 @@ export default {
     display: flex;
   }
 
+  .favorites-wrapper {
+    position: absolute;
+    width: 120px;
+    background-color: #222222;
+    height: 100%;
+    top: 0;
+    right: -120px;
+    overflow-y: scroll;
+    z-index: 1;
+  }
+
   .controls-wrapper {
     max-height: 100vh;
     overflow: auto;
     position: relative;
+    z-index: 2;
   }
 
   .controls {
@@ -290,6 +335,7 @@ export default {
     bottom: 0;
     width: 100%;
     text-align: center;
+    z-index: 3;
   }
 
   .download-wrapper {
