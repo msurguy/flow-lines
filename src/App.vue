@@ -37,37 +37,22 @@
             <path d="M28 22 L28 30 4 30 4 22 M16 4 L16 24 M8 16 L16 24 24 16"></path>
           </svg>
           </button>
-          <button class="btn btn-xsm ml-3 mr-1"><svg viewBox="0 0 32 32" width="22" height="22" fill="#af2430" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+          <button class="btn btn-xsm ml-3 mr-3" @click.prevent="addToFavorites"><svg viewBox="0 0 32 32" width="22" height="22" fill="#af2430" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
             <path d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z"></path>
           </svg></button>
-          <button @click="favorites.opened = !favorites.opened" class="btn btn-xsm ml-1 mr-3"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+          <button v-if="favorites.items.length" @click="favorites.opened = !favorites.opened" class="btn btn-xsm mr-3"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
             <path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24"></path>
           </svg></button>
         </div>
       </div>
       <transition name="favorites">
         <div v-if="favorites.opened" class="favorites-wrapper">
+          <p class="pl-2 mb-0">Favorites: </p>
           <ul>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
-            <li>Some here</li>
+            <li :key="favoritesIndex" v-for="(favoriteData, favoritesIndex) in favorites.items" @click="restoreFavorite(favoriteData)">
+              x: {{ favoriteData.x }} <br>
+              y: {{ favoriteData.y }}
+            </li>
           </ul>
         </div>
       </transition>
@@ -157,6 +142,32 @@ export default {
     this.generateStreamlines()
   },
   methods: {
+    addToFavorites () {
+      this.favorites.items.push({
+        x: this.appState.xFunction,
+        y: this.appState.yFunction,
+        dTest: this.appState.dTest,
+        separationDistance: this.appState.separationDistance,
+        timeStep: this.appState.timeStep,
+        simplification: this.appState.simplification,
+        strokeWidth: this.appState.strokeWidth,
+        strokeColor: this.appState.strokeColor,
+        bgColor: this.appState.bgColor,
+        seed: this.appState.seed
+      })
+    },
+    restoreFavorite (favorite) {
+      this.appState.xFunction = favorite.x
+      this.appState.yFunction = favorite.y
+      this.appState.dTest = favorite.dTest
+      this.appState.separationDistance = favorite.separationDistance
+      this.appState.timeStep = favorite.timeStep
+      this.appState.simplification = favorite.simplification
+      this.appState.strokeWidth = favorite.strokeWidth
+      this.appState.strokeColor = favorite.strokeColor
+      this.appState.bgColor = favorite.bgColor
+      this.appState.seed = favorite.seed
+    },
     addToHistory () {
       this.history.items.push({x: this.appState.xFunction, y: this.appState.yFunction})
       this.history.index = this.history.items.length - 1
@@ -296,7 +307,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
   .page {
     min-height: 100vh;
     position: relative;
@@ -305,14 +316,38 @@ export default {
   }
 
   .favorites-wrapper {
+    padding-top: 5px;
     position: absolute;
-    width: 120px;
+    width: 240px;
     background-color: #222222;
     height: 100%;
     top: 0;
-    right: -120px;
+    right: -240px;
     overflow-y: scroll;
     z-index: 1;
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      margin-top: 2px;
+      background-color: #0d0d0d;
+      font-size: 12px;
+      padding: 5px 10px;
+      overflow-x: scroll;
+      position: relative;
+
+      &:after {
+        color: #1C76E1;
+        content: 'view';
+        position: absolute;
+        top: 5px;
+        right: 10px;
+      }
+    }
   }
 
   .controls-wrapper {
