@@ -29,11 +29,21 @@
           <slider :min="1" :max="10000" label="Seed" v-model.number="appState.seed"></slider>
         </div>
       </div>
-      <div class="button">
+      <div class="bottom-sheet">
         <div class="reveal"></div>
-        <button class="btn btn-primary btn-block" @click.prevent="download">
-          Download SVG
-        </button>
+        <div class="d-flex pt-2 pb-2 download-wrapper">
+          <button class="btn ml-3 btn-primary btn-block" @click.prevent="download">
+            Download SVG <svg viewBox="0 6 32 32" width="16" height="16" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <path d="M28 22 L28 30 4 30 4 22 M16 4 L16 24 M8 16 L16 24 24 16"></path>
+          </svg>
+          </button>
+          <button class="btn btn-xsm ml-3 mr-1"><svg viewBox="0 0 32 32" width="22" height="22" fill="#af2430" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <path d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z"></path>
+          </svg></button>
+          <button class="btn btn-xsm ml-1 mr-3"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24"></path>
+          </svg></button>
+        </div>
       </div>
     </div>
 
@@ -275,17 +285,22 @@ export default {
     height: auto;
   }
 
-  .button {
+  .bottom-sheet {
     position: absolute;
     bottom: 0;
     width: 100%;
     text-align: center;
   }
 
+  .download-wrapper {
+    background-color: #393939;
+  }
+
   .reveal {
     display: block;
     height: 15px;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%,rgb(47, 47, 47) 100%);
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 20%, rgb(47, 47, 47) 100%);
   }
 
   .paper {
