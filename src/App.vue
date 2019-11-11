@@ -49,7 +49,11 @@
       </div>
       <transition name="favorites">
         <div v-if="favorites.opened" class="favorites-wrapper">
-          <p class="pl-2 mb-0">Favorites: </p>
+          <p class="pl-2 mb-1 mt-2">FAVORITES:
+            <button class="btn float-right badge badge-pill badge-dark mr-2" @click="favorites.tooltip = !favorites.tooltip">?</button></p>
+          <transition name="slide">
+            <p class="p-2 mb-0" v-if="favorites.tooltip">Favorites are stored locally in your browser and will be cleared if you refresh the browser.</p>
+          </transition>
           <transition-group name="slide" tag="ul">
           <li v-for="(favoriteData, favoriteIndex) in favorites.items" :key="favoriteData.hash">
             <span class="action">
@@ -150,6 +154,7 @@ export default {
         ]
       },
       favorites: {
+        tooltip: false,
         opened: false,
         items: [],
         animateHeart: false
@@ -356,7 +361,6 @@ export default {
   }
 
   .favorites-wrapper {
-    padding-top: 5px;
     position: absolute;
     width: 240px;
     background-color: #222222;
@@ -366,6 +370,11 @@ export default {
     overflow-y: scroll;
     z-index: 1;
     box-shadow: 0 0 5px 6px rgba(97, 94, 94, 0.45);
+
+    p {
+      font-family: monaco, Consolas, Lucida Console, monospace;
+      font-size: 14px;
+    }
 
     ul {
       list-style: none;
