@@ -1,19 +1,18 @@
 <template>
-  <div class="color-picker-wrapper">
-    <div class="sidebar-control">
-      <div class="control-header" @click="toggleColorPicker">
-        <label :for="labelId" class="control-label color-control-label" :id="labelId">Stroke</label>
-        <div class="color-indicator-wrapper">
-          <div class="color-indicator" :style="{ 'background-color': `#${hex}` }"></div>
-          <input :aria-labelledby="labelId"
-                 class="control-text-input color-control-text-input" type="text" :value="hex"
-                 @change="basicInputChange">
-          <button class="btn btn-xsm btn-outline-secondary color-picker-button" @click.prevent="emitChange">SET</button>
-        </div>
+  <div class="sidebar-control">
+    <div class="control-header">
+      <label :for="labelId" class="control-label color-control-label" :id="labelId">{{ label }}</label>
+      <div class="color-indicator-wrapper">
+        <div class="color-indicator" :style="{ 'background-color': `#${hex}` }" @click="toggleColorPicker"></div>
+        <input :aria-labelledby="labelId"
+               class="control-text-input color-control-text-input" type="text" :value="hex"
+               @change="basicInputChange">
+        <button class="btn btn-xsm btn-outline-secondary color-picker-button" @click.prevent="emitChange">SET</button>
       </div>
     </div>
     <transition name="slide">
       <div v-if="showColorPicker" role="application" aria-label="Color picker"
+           class="mt-2"
            :class="['vc-sketch', disableAlpha ? 'vc-sketch__disable-alpha' : '']">
         <div class="vc-sketch-saturation-wrap">
           <saturation v-model="colors" @change="childChange"></saturation>
@@ -51,7 +50,8 @@
             <ed-in label="a" :value="colors.a" :arrow-offset="0.01" :max="1" @change="inputChange"></ed-in>
           </div>
         </div>
-        <div class="vc-sketch-presets" role="group" aria-label="A color preset, pick one to set as current color">
+        <div class="vc-sketch-presets" role="group"
+             aria-label="A color preset, pick one to set as current color">
           <template v-for="c in presetColors">
             <div
               v-if="!isTransparent(c)"
@@ -94,6 +94,11 @@ const presetColors = [
 export default {
   name: 'ColorPicker',
   mixins: [colorMixin],
+  data () {
+    return {
+      showColorPicker: false
+    }
+  },
   components: {
     saturation,
     hue,
@@ -115,11 +120,10 @@ export default {
     disableFields: {
       type: Boolean,
       default: false
-    }
-  },
-  data () {
-    return {
-      showColorPicker: false
+    },
+    label: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -141,15 +145,12 @@ export default {
     }
   },
   methods: {
-    toggleColorPicker (e) {
-      if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'button') return
+    toggleColorPicker () {
       this.showColorPicker = !this.showColorPicker
     },
     emitChange (e) {
-      if (e.target.tagName.toLowerCase() === 'input' || e.target.tagName.toLowerCase() === 'button') {
-        this.showColorPicker = false
-      }
       this.$emit('colorChange', `#${this.hex}`)
+      this.showColorPicker = false
     },
     handlePreset (c) {
       this.colorChange({
@@ -165,6 +166,7 @@ export default {
         hex: e.target.value,
         source: 'hex'
       })
+      this.$emit('colorChange', `#${this.hex}`)
     },
     inputChange (data) {
       if (!data) {
@@ -191,9 +193,6 @@ export default {
 
 <style scoped>
   .vc-sketch {
-    position: absolute;
-    top: 40px;
-    left: 0;
     width: 100%;
     display: block;
     padding: 10px 10px 0;
@@ -312,29 +311,17 @@ export default {
     width: 20px;
     height: 20px;
     background-color: red;
+    display: block;
+    position: relative;
   }
 
   .color-indicator-wrapper {
+    position: relative;
     display: flex;
   }
 
   .color-control-text-input {
     display: inline-block;
     width: 70px;
-  }
-
-  .slide-enter-active,
-  .slide-leave-active {
-    transition: opacity 0.1s ease-in-out;
-  }
-
-  .slide-enter-to,
-  .slide-leave {
-    opacity: 1;
-  }
-
-  .slide-enter,
-  .slide-leave-to {
-    opacity: 0;
   }
 </style>

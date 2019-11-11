@@ -4,20 +4,27 @@ export const qs = queryState()
 
 const currentStateFromQuery = qs.get()
 
-export const defaultxFunction = 'Math.cos((Math.cos(p.y)-p.x*p.y))'
-export const defaultyFunction = '(p.x)'
-export const defaultDTest = 0.005
-export const defaultSeparationDistance = 0.2
-export const defaultSimplification = 0.2
+export const defaults = {
+  xFunction: 'cos((cos(y) - x * y))',
+  yFunction: 'x',
+  dTest: 0.005,
+  separationDistance: 0.2,
+  simplification: 0.2,
+  color: '#000000',
+  bg: null,
+  timeStep: 0.05,
+  strokeWidth: 1
+}
 
 export const appState = {
-  xFunction: currentStateFromQuery.xf || defaultxFunction,
-  yFunction: currentStateFromQuery.yf || defaultyFunction,
-  seed: {
-    value: currentStateFromQuery.seed || 10
-  },
-  dTest: currentStateFromQuery.dt || defaultDTest,
-  separationDistance: currentStateFromQuery.sd || defaultSeparationDistance, // Separation distance between new streamlines.
-  simplification: currentStateFromQuery.sm || defaultSimplification // line simplification amount (0.1-2)
-
+  xFunction: currentStateFromQuery.xf || defaults.xFunction,
+  yFunction: currentStateFromQuery.yf || defaults.yFunction,
+  seed: currentStateFromQuery.seed || 1,
+  color: currentStateFromQuery.color || defaults.color,
+  dTest: currentStateFromQuery.dt || defaults.dTest,
+  separationDistance: currentStateFromQuery.sd || defaults.separationDistance, // Separation distance between new streamlines.
+  simplification: currentStateFromQuery.sm || defaults.simplification, // line simplification amount (0.1-2)
+  timeStep: currentStateFromQuery.ts || defaults.timeStep,
+  bg: currentStateFromQuery.bg || defaults.bg,
+  strokeWidth: currentStateFromQuery.sw || defaults.strokeWidth
 }

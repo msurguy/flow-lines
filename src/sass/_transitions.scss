@@ -18,3 +18,41 @@
   overflow: hidden;
   @include transition($transition-collapse);
 }
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 250ms ease-in-out;
+}
+.slide-enter-to,
+.slide-leave {
+  max-height: 400px;
+  opacity: 1;
+  overflow: hidden;
+}
+.slide-enter,
+.slide-leave-to {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.favorites-enter-active, .favorites-leave-active  {
+  transition: transform 0.3s ease-in-out;;
+}
+.favorites-enter, .favorites-leave-to {
+  transform: translateX(-240px); // width of the thumbnail panel
+}
+
+.list-button-enter-active,
+.list-button-leave-active {
+  transition: max-width 0.3s ease-in-out;;
+}
+
+.list-button-enter-to,
+.list-button-leave {
+  max-width: 200px;
+}
+.list-button-enter,
+.list-button-leave-to {
+  max-width: 0;
+}
