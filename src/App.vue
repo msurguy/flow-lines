@@ -37,23 +37,41 @@
             <path d="M28 22 L28 30 4 30 4 22 M16 4 L16 24 M8 16 L16 24 24 16"></path>
           </svg>
           </button>
-          <button class="btn btn-xsm ml-3 mr-3" @click.prevent="addToFavorites"><svg viewBox="0 0 32 32" width="22" height="22" fill="#af2430" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+          <button class="btn btn-xsm ml-3 mr-3" :class="{'animate-heart': favorites.animateHeart }" @animationend="favorites.animateHeart = false" @click.prevent="addToFavorites"><svg viewBox="0 0 32 32" width="22" height="22" fill="#af2430" stroke="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
             <path d="M4 16 C1 12 2 6 7 4 12 2 15 6 16 8 17 6 21 2 26 4 31 6 31 12 28 16 25 20 16 28 16 28 16 28 7 20 4 16 Z"></path>
           </svg></button>
-          <button v-if="favorites.items.length" @click="favorites.opened = !favorites.opened" class="btn btn-xsm mr-3"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-            <path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24"></path>
-          </svg></button>
+          <transition name="list-button">
+            <button v-if="favorites.items.length" @click="favorites.opened = !favorites.opened" class="btn btn-xsm mr-3"><svg viewBox="0 0 32 32" width="22" height="22" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24"></path>
+            </svg></button>
+          </transition>
         </div>
       </div>
       <transition name="favorites">
         <div v-if="favorites.opened" class="favorites-wrapper">
           <p class="pl-2 mb-0">Favorites: </p>
-          <ul>
-            <li :key="favoritesIndex" v-for="(favoriteData, favoritesIndex) in favorites.items" @click="restoreFavorite(favoriteData)">
+          <transition-group name="slide" tag="ul">
+          <li v-for="(favoriteData, favoriteIndex) in favorites.items" :key="favoriteData.hash">
+            <span class="action">
+              <button @click="restoreFavorite(favoriteData)" class="btn btn-xsm">
+                <svg viewBox="0 0 32 32" width="18" height="18" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                <circle cx="17" cy="15" r="1"></circle>
+                <circle cx="16" cy="16" r="6"></circle>
+                <path d="M2 16 C2 16 7 6 16 6 25 6 30 16 30 16 30 16 25 26 16 26 7 26 2 16 2 16 Z"></path>
+                </svg>
+              </button>
+            </span>
+            <span class="contents">
               x: {{ favoriteData.x }} <br>
               y: {{ favoriteData.y }}
-            </li>
-          </ul>
+            </span>
+            <button class="btn btn-xsm delete" @click="deleteFavorite(favoriteIndex)">
+              <svg viewBox="0 0 32 32" width="18" height="18" fill="#000000" stroke="#fb00a5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                <path d="M28 6 L6 6 8 30 24 30 26 6 4 6 M16 12 L16 24 M21 12 L20 24 M11 12 L12 24 M12 6 L13 2 19 2 20 6"></path>
+              </svg>
+            </button>
+          </li>
+          </transition-group>
         </div>
       </transition>
     </div>
@@ -85,6 +103,7 @@ import ColorPicker from './components/ColorPicker/ColorPicker'
 import TextInput from './components/TextInput'
 import Slider from './components/Slider'
 import {formulaHelpText} from './help/text'
+import {hash} from './lib/hash'
 
 const math = require('./lib/math').default
 const Randoma = require('randoma')
@@ -132,7 +151,8 @@ export default {
       },
       favorites: {
         opened: false,
-        items: []
+        items: [],
+        animateHeart: false
       }
     }
   },
@@ -143,7 +163,9 @@ export default {
   },
   methods: {
     addToFavorites () {
-      this.favorites.items.push({
+      this.favorites.animateHeart = true
+
+      const favorite = {
         x: this.appState.xFunction,
         y: this.appState.yFunction,
         dTest: this.appState.dTest,
@@ -151,9 +173,20 @@ export default {
         timeStep: this.appState.timeStep,
         simplification: this.appState.simplification,
         strokeWidth: this.appState.strokeWidth,
-        strokeColor: this.appState.strokeColor,
-        bgColor: this.appState.bgColor,
+        color: this.appState.color,
+        bg: this.appState.bg,
         seed: this.appState.seed
+      }
+
+      // check if this favorite already exists in the list of favorites
+      const hashedFavorite = hash(JSON.stringify(favorite))
+      const favoriteExists = this.favorites.items.find(favorite => favorite.hash === hashedFavorite)
+
+      if (favoriteExists) return
+
+      this.favorites.items.unshift({
+        ...favorite,
+        hash: hashedFavorite
       })
     },
     restoreFavorite (favorite) {
@@ -164,9 +197,13 @@ export default {
       this.appState.timeStep = favorite.timeStep
       this.appState.simplification = favorite.simplification
       this.appState.strokeWidth = favorite.strokeWidth
-      this.appState.strokeColor = favorite.strokeColor
-      this.appState.bgColor = favorite.bgColor
+      this.appState.color = favorite.color
+      this.appState.bg = favorite.bg
       this.appState.seed = favorite.seed
+      this.generateStreamlines()
+    },
+    deleteFavorite (favoriteIndex) {
+      this.favorites.items.splice(favoriteIndex, 1)
     },
     addToHistory () {
       this.history.items.push({x: this.appState.xFunction, y: this.appState.yFunction})
@@ -302,6 +339,9 @@ export default {
     },
     'appState.bg' (value) {
       qs.set({bg: value})
+    },
+    'favorites.items' (value) {
+      if (value.length === 0) this.favorites.opened = false
     }
   }
 }
@@ -325,6 +365,7 @@ export default {
     right: -240px;
     overflow-y: scroll;
     z-index: 1;
+    box-shadow: 0 0 5px 6px rgba(97, 94, 94, 0.45);
 
     ul {
       list-style: none;
@@ -336,16 +377,27 @@ export default {
       margin-top: 2px;
       background-color: #0d0d0d;
       font-size: 12px;
-      padding: 5px 10px;
-      overflow-x: scroll;
+      padding: 5px 5px;
       position: relative;
+      display: flex;
+      align-items: center;
 
-      &:after {
-        color: #1C76E1;
-        content: 'view';
+      .action {
+        padding-right: 5px;
+      }
+
+      .contents {
+        position: relative;
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow-x: scroll;
+      }
+
+      .delete {
+        background-color: rgba(0,0,0,0);
         position: absolute;
         top: 5px;
-        right: 10px;
+        right: 2px;
       }
     }
   }
@@ -371,6 +423,19 @@ export default {
     width: 100%;
     text-align: center;
     z-index: 3;
+  }
+
+  .animate-heart {
+    animation: heartPulse .25s ease both;
+  }
+
+  @keyframes heartPulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
   }
 
   .download-wrapper {

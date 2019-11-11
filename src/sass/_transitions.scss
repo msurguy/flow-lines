@@ -37,8 +37,22 @@
 }
 
 .favorites-enter-active, .favorites-leave-active  {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease-in-out;;
 }
 .favorites-enter, .favorites-leave-to {
   transform: translateX(-240px); // width of the thumbnail panel
+}
+
+.list-button-enter-active,
+.list-button-leave-active {
+  transition: max-width 0.3s ease-in-out;;
+}
+
+.list-button-enter-to,
+.list-button-leave {
+  max-width: 200px;
+}
+.list-button-enter,
+.list-button-leave-to {
+  max-width: 0;
 }
