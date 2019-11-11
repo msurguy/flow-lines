@@ -1,7 +1,7 @@
 {
-  "name": "flow-fields",
+  "name": "flow-lines",
   "version": "1.0.0",
-  "description": "Flow Fields SVG Generator",
+  "description": "Flow Lines SVG Generator",
   "author": "Maksim <msurguy@gmail.com>",
   "private": false,
   "scripts": {

@@ -21,7 +21,7 @@
                       v-model="appState.yFunction"></text-input>
           <slider :min="0.001" :max="0.2" :step="0.001" label="dTest" v-model.number="appState.dTest"></slider>
           <slider :min="0.001" :max="1" :step="0.001" label="Separation Distance" v-model.number="appState.separationDistance"></slider>
-          <slider :min="0.02" :max="1" :step="0.001" label="Time Step" v-model.number="appState.timeStep"></slider>
+          <slider :min="0.01" :max="1" :step="0.001" label="Time Step" v-model.number="appState.timeStep"></slider>
           <slider :min="0.05" :max="1" :step="0.05" label="Simplification" v-model.number="appState.simplification"></slider>
           <slider :min="1" :max="5" :step="1" label="Stroke Width" v-model.number="appState.strokeWidth"></slider>
           <color-picker :disable-alpha="true" @colorChange="setColor" label="Stroke" v-model="strokeColor"></color-picker>
@@ -162,7 +162,7 @@ export default {
     }
   },
   mounted () {
-    SVGCanvas = SVG('drawing').size(this.paper.width, this.paper.height)
+    SVGCanvas = SVG('drawing').addClass('svg-paper').size(this.paper.width, this.paper.height).viewbox({ x: 0, y: 0, width: this.paper.width, height: this.paper.height })
     math.config({randomSeed: this.appState.seed})
     this.generateStreamlines()
   },
@@ -493,6 +493,15 @@ export default {
     text-align: right;
   }
 
+  @media (min-width: 768px) {
+    .favorites-enter-active, .favorites-leave-active  {
+      transition: transform 0.3s ease-in-out;;
+    }
+    .favorites-enter, .favorites-leave-to {
+      transform: translateX(-240px); // width of the thumbnail panel
+    }
+  }
+
   @media (max-width: 767px) {
     .page {
       flex-direction: column-reverse;
@@ -509,11 +518,34 @@ export default {
     .paper {
       width: 100%;
       max-height: none;
+      overflow: hidden;
     }
 
     .footer-wrapper {
       position: relative;
       background-color: #CCC;
+    }
+
+    #xFunctionText, #yFunctionText {
+      display: none;
+    }
+
+    .favorites-wrapper {
+      position: relative;
+      width: 100%;
+      background-color: #222222;
+      min-height: 100px;
+      overflow-y: scroll;
+      top: 0;
+      right: 0;
+      padding-bottom: 60px;
+    }
+
+    .favorites-enter-active, .favorites-leave-active  {
+      transition: opacity 0.3s ease-in-out;;
+    }
+    .favorites-enter, .favorites-leave-to {
+      opacity: 0;
     }
   }
 </style>
