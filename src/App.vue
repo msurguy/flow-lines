@@ -79,7 +79,6 @@
         </div>
       </transition>
     </div>
-
     <!-- Page Content -->
     <div class="paper">
       <div class="sketch">
@@ -88,9 +87,17 @@
       <p id="xFunctionText" class="mt-2 mb-0 small text-black-50">x: {{ this.appState.xFunction }}</p>
       <p id="yFunctionText" class="small text-black-50">y: {{ this.appState.yFunction }}</p>
     </div>
+    <div class="sharing-wrapper">
+      <span class="text-black-50 small">Share this: </span> <a target="_blank" :href="`https://twitter.com/share?text=Flow%20Lines%20SVG%20generator&url=https://msurguy.github.io/flow-lines${currentURLHash}&via=msurguy`">
+      <svg viewBox="0 0 64 64" width="22" height="22"><path stroke-width="0" fill="currentColor" d="M60 16 L54 17 L58 12 L51 14 C42 4 28 15 32 24 C16 24 8 12 8 12 C8 12 2 21 12 28 L6 26 C6 32 10 36 17 38 L10 38 C14 46 21 46 21 46 C21 46 15 51 4 51 C37 67 57 37 54 21 Z"></path> </svg>
+    </a>
+    </div>
     <div class="footer-wrapper">
         <div class="footer">
-          <h1>Flow Lines</h1>
+          <h2>Flow Lines</h2>
+          <p class="small">Project by <a target="_blank" href="http://twitter.com/msurguy">@msurguy</a> <br>
+            <a target="_blank" href="http://github.com/msurguy/flow-lines">Source</a> | <a target="_blank" href="https://github.com/sponsors/msurguy">Support</a>
+          </p>
         </div>
       </div>
   </div>
@@ -165,6 +172,14 @@ export default {
     SVGCanvas = SVG('drawing').addClass('svg-paper').size(this.paper.width, this.paper.height).viewbox({ x: 0, y: 0, width: this.paper.width, height: this.paper.height })
     math.config({randomSeed: this.appState.seed})
     this.generateStreamlines()
+  },
+  computed: {
+    currentURLHash () {
+      let justHash = window.location.hash
+      if (!justHash) return ''
+      justHash = justHash.substring(2)
+      return `/%23%3F${justHash}`
+    }
   },
   methods: {
     addToFavorites () {
@@ -480,6 +495,16 @@ export default {
     box-shadow: 0 0 5px 6px rgba(97, 94, 94, 0.45);
   }
 
+  .sharing-wrapper {
+    z-index: 1000;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #2D2D2D;
+    padding-right: 10px;
+    padding-top: 10px;
+  }
+
   .footer-wrapper {
     z-index: 1000;
     position: absolute;
@@ -524,6 +549,14 @@ export default {
     .footer-wrapper {
       position: relative;
       background-color: #CCC;
+    }
+
+    .sharing-wrapper {
+      position: relative;
+      background-color: #CCC;
+      text-align: center;
+      padding-bottom: 10px;
+      padding-top: 0;
     }
 
     #xFunctionText, #yFunctionText {
