@@ -87,6 +87,12 @@
       <p id="xFunctionText" class="mt-2 mb-0 small text-black-50">x: {{ this.appState.xFunction }}</p>
       <p id="yFunctionText" class="small text-black-50">y: {{ this.appState.yFunction }}</p>
     </div>
+
+    <div class="sharing-wrapper">
+      <span class="text-black-50 small">Share this: </span> <a target="_blank" :href="`https://twitter.com/intent/tweet?text=Flow%20Lines%20SVG%20generator&url=${sharingURL}&via=msurguy`">
+      <svg viewBox="0 0 64 64" width="22" height="22"><path stroke-width="0" fill="currentColor" d="M60 16 L54 17 L58 12 L51 14 C42 4 28 15 32 24 C16 24 8 12 8 12 C8 12 2 21 12 28 L6 26 C6 32 10 36 17 38 L10 38 C14 46 21 46 21 46 C21 46 15 51 4 51 C37 67 57 37 54 21 Z"></path> </svg>
+      </a>
+    </div>
     <div class="footer-wrapper">
         <div class="footer">
           <h2>Flow Lines</h2>
@@ -99,20 +105,22 @@
 </template>
 
 <script>
-import {appState, qs} from './appState'
-import {simplify} from './lib/simplify-path'
-import {generateFunction} from './lib/function-generator'
+import { appState, qs } from './appState'
+import { simplify } from './lib/simplify-path'
+import { generateFunction } from './lib/function-generator'
 import streamlines from '@anvaka/streamlines'
 import * as SVG from 'svg.js'
-import {generateDownload} from './lib/svgDownload'
+import { generateDownload } from './lib/svgDownload'
 import ColorPicker from './components/ColorPicker/ColorPicker'
 import TextInput from './components/TextInput'
 import Slider from './components/Slider'
-import {formulaHelpText} from './help/text'
-import {hash} from './lib/hash'
+import { formulaHelpText } from './help/text'
+import { hash } from './lib/hash'
+import * as query from 'query-state/lib/query'
 
 const math = require('./lib/math').default
 const Randoma = require('randoma')
+const projectURL = 'https://msurguy.github.io/flow-lines/'
 
 // What function to produce streamlines for
 let vectorField
@@ -143,7 +151,7 @@ export default {
       },
       config: {
         boundingBox:
-          {left: -5, top: -5, width: 10, height: 10} // This is the "zoom" level of the rendering
+          { left: -5, top: -5, width: 10, height: 10 } // This is the "zoom" level of the rendering
       },
       formulaHelpText,
       history: {
@@ -160,13 +168,15 @@ export default {
         opened: false,
         items: [],
         animateHeart: false
-      }
+      },
+      sharingURL: projectURL
     }
   },
   mounted () {
     SVGCanvas = SVG('drawing').addClass('svg-paper').size(this.paper.width, this.paper.height).viewbox({ x: 0, y: 0, width: this.paper.width, height: this.paper.height })
-    math.config({randomSeed: this.appState.seed})
+    math.config({ randomSeed: this.appState.seed })
     this.generateStreamlines()
+    this.updateSharingURL(false)
   },
   methods: {
     addToFavorites () {
@@ -213,7 +223,7 @@ export default {
       this.favorites.items.splice(favoriteIndex, 1)
     },
     addToHistory () {
-      this.history.items.push({x: this.appState.xFunction, y: this.appState.yFunction})
+      this.history.items.push({ x: this.appState.xFunction, y: this.appState.yFunction })
       this.history.index = this.history.items.length - 1
     },
     backInHistory () {
@@ -263,7 +273,7 @@ export default {
       const simplification = this.appState.simplification
       if (streamlinesProcess) streamlinesProcess.dispose()
 
-      const random = new Randoma({seed: this.appState.seed})
+      const random = new Randoma({ seed: this.appState.seed })
 
       const seedPoint = {
         x: this.config.boundingBox.left + random.float() * this.config.boundingBox.width,
@@ -287,7 +297,7 @@ export default {
             transformedPoints.push([Math.round(tx * paper.width * 100) / 100, Math.round(((1 - ty) * paper.height) * 100) / 100])
           }
           let simplifiedPath = simplify(transformedPoints, simplification)
-          SVGGroup.polyline(simplifiedPath).fill('none').stroke({width: strokeWidth, color: color})
+          SVGGroup.polyline(simplifiedPath).fill('none').stroke({ width: strokeWidth, color: color })
         },
         seed: seedPoint,
         boundingBox: config.boundingBox,
@@ -307,45 +317,59 @@ export default {
       this.appState.yFunction = generateFunction()
       this.generateStreamlines()
       this.addToHistory()
+    },
+    updateSharingURL (appendQuery) {
+      const queryPrefix = appendQuery ? '#?' : ''
+      // For twitter, we need to replace = and & with HTML encoded characters
+      this.sharingURL = (encodeURIComponent(projectURL + queryPrefix) + query.stringify(qs.get())).split('=').join('%3D').split('&').join('%26')
     }
   },
   watch: {
+    appState: {
+      handler () {
+        // Need to wait until all items in appState is updated
+        this.$nextTick(function () {
+          this.updateSharingURL(true)
+        })
+      },
+      deep: true
+    },
     'appState.xFunction' (value) {
-      qs.set({xf: value})
+      qs.set({ xf: value })
       this.generateStreamlines()
     },
     'appState.yFunction' (value) {
-      qs.set({yf: value})
+      qs.set({ yf: value })
       this.generateStreamlines()
     },
     'appState.seed' (value) {
-      qs.set({seed: value})
+      qs.set({ seed: value })
     },
     'appState.dTest' (value) {
-      qs.set({dt: value})
+      qs.set({ dt: value })
       this.generateStreamlines()
     },
     'appState.separationDistance' (value) {
-      qs.set({sd: value})
+      qs.set({ sd: value })
       this.generateStreamlines()
     },
     'appState.simplification' (value) {
-      qs.set({sm: value})
+      qs.set({ sm: value })
       this.generateStreamlines()
     },
     'appState.timeStep' (value) {
-      qs.set({ts: value})
+      qs.set({ ts: value })
       this.generateStreamlines()
     },
     'appState.color' (value) {
-      qs.set({color: value})
+      qs.set({ color: value })
     },
     'appState.strokeWidth' (value) {
-      qs.set({sw: value})
+      qs.set({ sw: value })
       SVGCanvas.select('polyline').stroke({ width: value })
     },
     'appState.bg' (value) {
-      qs.set({bg: value})
+      qs.set({ bg: value })
     },
     'favorites.items' (value) {
       if (value.length === 0) this.favorites.opened = false
@@ -411,6 +435,15 @@ export default {
         right: 2px;
       }
     }
+  }
+
+  .sharing-wrapper {
+    z-index: 1001;
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #2D2D2D;
+    padding: 10px;
   }
 
   .controls-wrapper {
@@ -511,6 +544,12 @@ export default {
 
     .controls-wrapper {
       max-height: none;
+    }
+
+    .sharing-wrapper {
+      position: absolute;
+      left: 0;
+      padding: 15px;
     }
 
     .sidebar {
