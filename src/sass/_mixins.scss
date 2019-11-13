@@ -11,15 +11,15 @@
 // Utilities
 @import "mixins/breakpoints";
 @import "mixins/hover";
-@import "mixins/image";
+//@import "mixins/image";
 @import "mixins/badge";
-@import "mixins/resize";
-@import "mixins/screen-reader";
+//@import "mixins/resize";
+//@import "mixins/screen-reader";
 @import "mixins/size";
 @import "mixins/reset-text";
 @import "mixins/text-emphasis";
-@import "mixins/text-hide";
-@import "mixins/text-truncate";
+//@import "mixins/text-hide";
+//@import "mixins/text-truncate";
 @import "mixins/visibility";
 
 // // Components
@@ -42,6 +42,6 @@
 
 // // Layout
 @import "mixins/clearfix";
-@import "mixins/grid-framework";
-@import "mixins/grid";
+//@import "mixins/grid-framework";
+//@import "mixins/grid";
 @import "mixins/float";

@@ -11,7 +11,7 @@
 .text-justify  { text-align: justify !important; }
 .text-wrap     { white-space: normal !important; }
 .text-nowrap   { white-space: nowrap !important; }
-.text-truncate { @include text-truncate; }
+//.text-truncate { @include text-truncate; }
 
 // Responsive alignment
 
@@ -56,9 +56,9 @@
 
 // Misc
 
-.text-hide {
-  @include text-hide($ignore-warning: true);
-}
+//.text-hide {
+//  @include text-hide($ignore-warning: true);
+//}
 
 .text-decoration-none { text-decoration: none !important; }
 
