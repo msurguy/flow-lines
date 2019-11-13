@@ -10,7 +10,7 @@ export const generateDownload = (element) => {
     return (+x).toFixed(1)
   })
 
-  const blob = new Blob([svgDoctype + svgString], {type: 'image/svg+xml;charset=utf-8'})
+  const blob = new Blob([svgDoctype + svgString], { type: 'image/svg+xml;charset=utf-8' })
 
   /* This portion of script saves the file to local filesystem as a download */
   const svgUrl = URL.createObjectURL(blob)
