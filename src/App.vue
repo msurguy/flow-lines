@@ -321,7 +321,7 @@ export default {
     updateSharingURL (appendQuery) {
       const queryPrefix = appendQuery ? '#?' : ''
       // For twitter, we need to replace = and & with HTML encoded characters
-      this.sharingURL = (encodeURIComponent(projectURL + queryPrefix) + query.stringify(qs.get())).split('%20').join('').split('=').join('%3D').split('&').join('%26')
+      this.sharingURL = (encodeURIComponent(projectURL + queryPrefix) + query.stringify(qs.get())).split('%20').join('').split('=').join('%3D').split('&').join('%26').split('%28').join('%2528').split('%29').join('%2529')
     }
   },
   watch: {
