@@ -7,7 +7,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "svg": "vsvg -s static -t src/icons",
-    "build": "vue-cli-service build",
+    "build": "vue-cli-service build --no-clean",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
