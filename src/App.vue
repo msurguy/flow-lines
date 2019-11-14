@@ -89,7 +89,7 @@
     </div>
 
     <div class="sharing-wrapper">
-      <span class="text-black-50 small">Share this: </span> <a target="_blank" :href="`https://twitter.com/intent/tweet?text=Flow%20Lines%20SVG%20generator&url=${sharingURL}&via=msurguy`">
+      <span class="text-black-50 small">Share this: </span> <a target="_blank" :href="`https://twitter.com/intent/tweet?text=Flow%20Lines%20SVG%20generator&url=${sharingURL}&via=msurguy&hashtags=FlowLines%2CSVG`">
       <svg viewBox="0 0 64 64" width="22" height="22"><path stroke-width="0" fill="currentColor" d="M60 16 L54 17 L58 12 L51 14 C42 4 28 15 32 24 C16 24 8 12 8 12 C8 12 2 21 12 28 L6 26 C6 32 10 36 17 38 L10 38 C14 46 21 46 21 46 C21 46 15 51 4 51 C37 67 57 37 54 21 Z"></path> </svg>
       </a>
     </div>
@@ -321,7 +321,8 @@ export default {
     updateSharingURL (appendQuery) {
       const queryPrefix = appendQuery ? '#?' : ''
       // For twitter, we need to replace = and & with HTML encoded characters
-      this.sharingURL = (encodeURIComponent(projectURL + queryPrefix) + query.stringify(qs.get())).split('%20').join('').split('=').join('%3D').split('&').join('%26').split('%28').join('%2528').split('%29').join('%2529')
+      const encodedURL = query.stringify(qs.get())
+      this.sharingURL = encodeURIComponent(projectURL + queryPrefix + encodedURL)
     }
   },
   watch: {
@@ -344,6 +345,7 @@ export default {
     },
     'appState.seed' (value) {
       qs.set({ seed: value })
+      this.generateStreamlines()
     },
     'appState.dTest' (value) {
       qs.set({ dt: value })
