@@ -319,7 +319,7 @@ export default {
       this.addToHistory()
     },
     updateSharingURL (appendQuery) {
-      const queryPrefix = appendQuery ? '#?' : ''
+      const queryPrefix = appendQuery ? '?' : ''
       // For twitter, we need to replace = and & with HTML encoded characters
       const encodedURL = query.stringify(qs.get())
       this.sharingURL = encodeURIComponent(projectURL + queryPrefix + encodedURL)
