@@ -4,6 +4,9 @@
     <div class="sidebar">
       <div class="controls-wrapper">
         <div class="controls">
+          <div class="text-center p-2">
+            <a href="https://www.producthunt.com/posts/flow-lines?utm_source=badge-top-post-badge&utm_medium=badge&utm_souce=badge-flow-lines" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=174433&theme=light&period=daily" alt="Flow Lines - Mathematical art SVG creator with infinite variations | Product Hunt Embed" style="width: 200px; height: 40px;" width="200px" height="40px" /></a>
+          </div>
           <div class="btn-group  d-flex" role="group" aria-label="Basic example">
             <button type="button" class="btn btn-sm btn-primary" :disabled="history.index === 0" @click="backInHistory"><svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
               <path d="M10 6 L2 16 10 26 M2 16 L30 16"></path>
