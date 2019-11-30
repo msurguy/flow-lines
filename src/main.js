@@ -4,12 +4,17 @@ import Vue from 'vue'
 import App from './App'
 import './sass/bootstrap.scss'
 import SvgIcon from 'vue-svgicon'
+import VueAnalytics from 'vue-analytics'
 
 Vue.config.productionTip = false
 
 // Default tag name is 'svgicon'
 Vue.use(SvgIcon, {
   tagName: 'svgicon'
+})
+
+Vue.use(VueAnalytics, {
+  id: 'UA-153496574-1'
 })
 
 new Vue({
