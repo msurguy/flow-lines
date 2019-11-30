@@ -204,6 +204,13 @@ export default {
 
       if (favoriteExists) return
 
+      this.$ga.event({
+        eventCategory: 'clicks',
+        eventAction: 'clicked',
+        eventLabel: 'favorited',
+        eventValue: JSON.stringify(favorite)
+      })
+
       this.favorites.items.unshift({
         ...favorite,
         hash: hashedFavorite
