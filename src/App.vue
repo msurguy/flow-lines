@@ -269,9 +269,7 @@ export default {
       SVGCanvas.clear()
 
       // put the currently used formulas into the SVG doc for future reference
-      const description = document.createElement('title')
-      description.innerHTML = `x=${this.appState.xFunction}|y=${this.appState.yFunction}|dTest=${this.appState.dTest}|sd=${this.appState.separationDistance}|sm=${this.appState.simplification}|ts=${this.appState.timeStep} | generated with FlowLines`
-      SVGCanvas.node.appendChild(description)
+      SVGCanvas.element('title').words(`x=${this.appState.xFunction}|y=${this.appState.yFunction}|dTest=${this.appState.dTest}|sd=${this.appState.separationDistance}|sm=${this.appState.simplification}|ts=${this.appState.timeStep} | generated with FlowLines`)
 
       if (this.appState.bg) bgElement = SVGCanvas.rect(this.paper.width, this.paper.height).fill(this.appState.bg)
 
