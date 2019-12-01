@@ -180,6 +180,7 @@ export default {
     math.config({ randomSeed: this.appState.seed })
     this.generateStreamlines()
     this.updateSharingURL(false)
+    this.$ga.page('/')
   },
   methods: {
     addToFavorites () {
@@ -204,12 +205,7 @@ export default {
 
       if (favoriteExists) return
 
-      this.$ga.event({
-        eventCategory: 'clicks',
-        eventAction: 'clicked',
-        eventLabel: 'favorited',
-        eventValue: JSON.stringify(favorite)
-      })
+      this.$ga.event('clicks', 'clicked', 'favorited', JSON.stringify(favorite))
 
       this.favorites.items.unshift({
         ...favorite,
