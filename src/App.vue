@@ -259,7 +259,7 @@ export default {
       if (bgElement) bgElement.fill(value)
     },
     download () {
-      downloadSVG(SVGCanvas.node, 1, 'streamlines' + Date.now() + '.svg')
+      downloadSVG(SVGCanvas.node, 1, 'streamlines' + Date.now() + '.svg', true)
     },
     generateStreamlines () {
       SVGCanvas.clear()
