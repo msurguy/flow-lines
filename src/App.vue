@@ -113,13 +113,13 @@ import { simplify } from './lib/simplify-path'
 import { generateFunction } from './lib/function-generator'
 import streamlines from '@anvaka/streamlines'
 import * as SVG from 'svg.js'
-import { generateDownload } from './lib/svgDownload'
 import ColorPicker from './components/ColorPicker/ColorPicker'
 import TextInput from './components/TextInput'
 import Slider from './components/Slider'
 import { formulaHelpText } from './help/text'
 import { hash } from './lib/hash'
 import * as query from 'query-state/lib/query'
+const downloadSVG = require('svg-file-downloader')
 
 const math = require('./lib/math').default
 const Randoma = require('randoma')
@@ -259,7 +259,7 @@ export default {
       if (bgElement) bgElement.fill(value)
     },
     download () {
-      generateDownload(SVGCanvas.node)
+      downloadSVG(SVGCanvas.node, 1, 'streamlines' + Date.now() + '.svg')
     },
     generateStreamlines () {
       SVGCanvas.clear()
