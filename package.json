@@ -2,7 +2,7 @@
   "name": "flow-lines",
   "version": "1.0.0",
   "description": "Flow Lines SVG Generator",
-  "author": "Maksim <msurguy@gmail.com>",
+  "author": "Maksim Surguy <msurguy@gmail.com>",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
